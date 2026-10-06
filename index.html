@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACME Corporation - Windows Server 2019 Essentials Lab Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 40px auto;
+            max-width: 800px;
+            background-color: #ffffff;
+            color: #333333;
+            padding: 0 20px;
+        }
+        h1, h2, h3 {
+            color: #111111;
+        }
+        /* Style focus indicator for contenteditable blocks */
+        [contenteditable="true"]:focus {
+            outline: 2px solid #005fcc;
+            outline-offset: 4px;
+            background-color: #f4f8fb;
+        }
+        ul, ol {
+            margin-bottom: 20px;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #dddddd;
+            margin: 30px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        blockquote {
+            background-color: #f9f9f9;
+            border-left: 4px solid #005fcc;
+            margin: 15px 0;
+            padding: 10px 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 contenteditable="true">ACME CORPORATION</h1>
+    <p contenteditable="true"><strong>Information Technology Department</strong></p>
+
+    <h2 contenteditable="true">Windows Server 2019 Essentials</h2>
+    <p contenteditable="true"><strong>Domain Setup, File Server & User Management Lab</strong><br><em>A Step-by-Step Hands-On Laboratory Guide</em></p>
+
+    <table>
+        <tr>
+            <th contenteditable="true">Course</th>
+            <td contenteditable="true">Network Administration</td>
+        </tr>
+        <tr>
+            <th contenteditable="true">Lab Type</th>
+            <td contenteditable="true">Hands-On Configuration</td>
+        </tr>
+        <tr>
+            <th contenteditable="true">Domain</th>
+            <td contenteditable="true">ACME.LOCAL (172.16.100.x)</td>
+        </tr>
+        <tr>
+            <th contenteditable="true">Estimated Time</th>
+            <td contenteditable="true">3 – 4 Hours</td>
+        </tr>
+        <tr>
+            <th contenteditable="true">Skill Level</th>
+            <td contenteditable="true">Intermediate</td>
+        </tr>
+    </table>
+    <hr>
+
+    <h2 contenteditable="true">Lab Overview</h2>
+    <p contenteditable="true">Welcome to this hands-on lab for ACME Corporation, a global company specializing in the sale of widgets worldwide. In this lab, you will build the core IT infrastructure for ACME by installing and configuring Windows Server 2019 Essentials on a Dell computer, promoting it to a Domain Controller, configuring it as a File Server, and managing users and permissions for three departments.</p>
+
+    <h2 contenteditable="true">Learning Objectives</h2>
+    <p contenteditable="true">Upon completing this lab, you will be able to:</p>
+    <ul>
+        <li contenteditable="true">Install Windows Server 2019 Essentials on a Dell computer</li>
+        <li contenteditable="true">Configure a new Active Directory domain (172.16.100.x / ACME.LOCAL)</li>
+        <li contenteditable="true">Join three Windows client computers to the domain</li>
+        <li contenteditable="true">Create and configure domain user accounts with a standard naming convention</li>
+        <li contenteditable="true">Create and share department folders with appropriate drive letter mappings</li>
+        <li contenteditable="true">Apply NTFS permissions to restrict access between departments</li>
+        <li contenteditable="true">Create sub-folders within each department share and assign Modify permissions</li>
+    </ul>
+
+    <h2 contenteditable="true">Lab Topology</h2>
+    <p contenteditable="true">Your lab environment consists of the following machines:</p>
+    <table>
+        <tr>
+            <th contenteditable="true">Machine</th>
+            <th contenteditable="true">Role</th>
+            <th contenteditable="true">IP Address</th>
+            <th contenteditable="true">Notes</th>
+        </tr>
+        <tr>
+            <td contenteditable="true">DC01 (Dell)</td>
+            <td contenteditable="true">Domain Controller + File Server</td>
+            <td contenteditable="true">172.16.100.10</td>
+            <td contenteditable="true">Primary server for this lab</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">PC01</td>
+            <td contenteditable="true">Domain Workstation</td>
+            <td contenteditable="true">172.16.100.21</td>
+            <td contenteditable="true">First client to join domain</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">PC02</td>
+            <td contenteditable="true">Domain Workstation</td>
+            <td contenteditable="true">172.16.100.22</td>
+            <td contenteditable="true">Second client to join domain</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">PC03</td>
+            <td contenteditable="true">Domain Workstation</td>
+            <td contenteditable="true">172.16.100.23</td>
+            <td contenteditable="true">Third client to join domain</td>
+        </tr>
+    </table>
+
+    <blockquote contenteditable="true">
+        <p><strong>📝 Note:</strong><br>
+        All machines must be on the same subnet (172.16.100.0/24) and able to ping each other before proceeding.<br>
+        Set static IP addresses on all machines. The Domain Controller must have its own IP as the preferred DNS server.</p>
+    </blockquote>
+    <hr>
+
+    <h2 contenteditable="true">Part 1 — Installing Windows Server 2019 Essentials</h2>
+    <p contenteditable="true">In this part, you will boot your Dell computer from the Windows Server 2019 Essentials installation media and complete the initial OS setup.</p>
+
+    <h3 contenteditable="true">1.1 Pre-Installation Checklist</h3>
+    <p contenteditable="true">Before starting the installation, verify the following:</p>
+    <ul>
+        <li contenteditable="true">Dell computer is powered off</li>
+        <li contenteditable="true">Windows Server 2019 Essentials ISO is burned to a bootable USB drive (use Rufus or the Windows USB/DVD Download Tool)</li>
+        <li contenteditable="true">Computer BIOS/UEFI is configured to boot from USB first</li>
+        <li contenteditable="true">The Dell computer has at least 2 GB RAM and 32 GB storage (64 GB recommended)</li>
+        <li contenteditable="true">You have noted the product key for Windows Server 2019 Essentials</li>
+    </ul>
+
+    <h3 contenteditable="true">1.2 Installation Steps</h3>
+    <ol>
+        <li contenteditable="true">Insert the bootable USB drive into the Dell computer and power it on.</li>
+        <li contenteditable="true">When prompted, press any key to boot from USB.</li>
+        <li contenteditable="true">In the Windows Setup window, select your preferred Language, Time format, and Keyboard layout, then click Next.</li>
+        <li contenteditable="true">Click Install now.</li>
+        <li contenteditable="true">Enter your product key when prompted, then click Next. (If you are using an evaluation copy, click I don't have a product key)</li>
+        <li contenteditable="true">Select Windows Server 2019 Essentials (Desktop Experience) and click Next.</li>
+        <li contenteditable="true">Accept the license terms and click Next.</li>
+        <li contenteditable="true">Click Custom: Install Windows only (advanced).</li>
+        <li contenteditable="true">Select the target disk (usually Drive 0 Unallocated Space) and click New, then Apply, then Next. Windows will create the required partitions automatically.</li>
+        <li contenteditable="true">The system will copy files and restart several times. This process takes approximately 15–25 minutes.</li>
+        <li contenteditable="true">After the final restart, you will be asked to set the Administrator password. Use a strong password. Example: Acme@2024! (do NOT use this in production)</li>
+        <li contenteditable="true">Press Ctrl+Alt+Delete and log in with the password you just created.</li>
+    </ol>
+
+    <blockquote contenteditable="true">
+        <p><strong>⚠️ Important:</strong><br>
+        Record the Administrator password in a secure location. You will need it throughout this lab.<br>
+        Do not use simple passwords such as 'Password123' — Windows Server enforces complexity requirements.</p>
+    </blockquote>
+
+    <h3 contenteditable="true">1.3 Post-Installation — Set Static IP Address</h3>
+    <p contenteditable="true">Before promoting the server to a Domain Controller, assign a static IP address.</p>
+    <ol>
+        <li contenteditable="true">Open Server Manager (it opens automatically after login).</li>
+        <li contenteditable="true">Click Local Server in the left panel, then click the link next to Ethernet.</li>
+        <li contenteditable="true">Right-click your network adapter and choose Properties.</li>
+        <li contenteditable="true">Select Internet Protocol Version 4 (TCP/IPv4) and click Properties.</li>
+        <li contenteditable="true">Select Use the following IP address and enter:</li>
+    </ol>
+
+    <table>
+        <tr>
+            <th contenteditable="true">Setting</th>
+            <th contenteditable="true">Value</th>
+        </tr>
+        <tr>
+            <td contenteditable="true">IP Address</td>
+            <td contenteditable="true">172.16.100.10</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Subnet Mask</td>
+            <td contenteditable="true">255.255.255.0</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Default Gateway</td>
+            <td contenteditable="true">172.16.100.1</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Preferred DNS Server</td>
+            <td contenteditable="true">172.16.100.10</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Alternate DNS Server</td>
+            <td contenteditable="true">(leave blank for now)</td>
+        </tr>
+    </table>
+
+    <ol start="6">
+        <li contenteditable="true">Click OK twice, then close the Network Connections window.</li>
+        <li contenteditable="true">Rename the server: In Server Manager, click Local Server, then click the current computer name. Change it to DC01, click OK, and restart when prompted.</li>
+    </ol>
+    <hr>
+
+    <h2 contenteditable="true">Part 2 — Promoting the Server to a Domain Controller</h2>
+    <p contenteditable="true">Now you will install the Active Directory Domain Services (AD DS) role and promote DC01 to a Domain Controller for the new ACME.LOCAL domain.</p>
+
+    <h3 contenteditable="true">2.1 Install the AD DS Role</h3>
+    <ol>
+        <li contenteditable="true">In Server Manager, click Manage → Add Roles and Features.</li>
+        <li contenteditable="true">Click Next on the Before you begin page.</li>
+        <li contenteditable="true">Select Role-based or feature-based installation and click Next.</li>
+        <li contenteditable="true">Confirm DC01 is selected as the destination server. Click Next.</li>
+        <li contenteditable="true">In the Server Roles list, check Active Directory Domain Services. A dialog will appear — click Add Features, then click Next.</li>
+        <li contenteditable="true">Click Next on the Features page (no additional features needed).</li>
+        <li contenteditable="true">Click Next on the AD DS information page.</li>
+        <li contenteditable="true">Click Install. Wait for the installation to complete (approximately 3–5 minutes).</li>
+        <li contenteditable="true">When installation finishes, click Close. Do NOT restart yet.</li>
+    </ol>
+
+    <h3 contenteditable="true">2.2 Promote to Domain Controller</h3>
+    <ol>
+        <li contenteditable="true">In Server Manager, click the yellow flag notification icon (top right) and click Promote this server to a domain controller.</li>
+        <li contenteditable="true">Select Add a new forest and enter the root domain name: acme.local</li>
+        <li contenteditable="true">Click Next.</li>
+        <li contenteditable="true">On Domain Controller Options: verify Forest functional level and Domain functional level are both set to Windows Server 2016 (or 2019 if available). Leave DNS Server and Global Catalog checked.</li>
+        <li contenteditable="true">Enter and confirm the Directory Services Restore Mode (DSRM) password. Example: Dsrm@2024!</li>
+        <li contenteditable="true">Click Next through the DNS Delegation warning (click Next to skip).</li>
+        <li contenteditable="true">The NetBIOS domain name should auto-populate as ACME. Click Next.</li>
+        <li contenteditable="true">Accept the default paths for Database, Log files, and SYSVOL. Click Next.</li>
+        <li contenteditable="true">Review the summary on the Review Options page. Click Next.</li>
+        <li contenteditable="true">On Prerequisites Check: ignore any warnings about DNS delegation. Click Install.</li>
+        <li contenteditable="true">The server will install AD DS and restart automatically. This process takes 5–10 minutes.</li>
+        <li contenteditable="true">After the restart, log in as ACME\Administrator (or use Administrator if only one account is shown).</li>
+    </ol>
+
+    <blockquote contenteditable="true">
+        <p><strong>📝 Note:</strong><br>
+        After promotion, your server is now a Domain Controller. Server Manager will show 'AD DS' and 'DNS' in the left panel.<br>
+        Verify the domain is working: Open a Command Prompt and type: <code>nslookup acme.local</code><br>
+        The response should show the IP address 172.16.100.10.</p>
+    </blockquote>
+    <hr>
+
+    <h2 contenteditable="true">Part 3 — Joining Client Computers to the Domain</h2>
+    <p contenteditable="true">Perform the following steps on each of the three client computers (PC01, PC02, PC03). Each client must be running Windows 10 or Windows 11 Professional.</p>
+
+    <h3 contenteditable="true">3.1 Configure Client Network Settings</h3>
+    <p contenteditable="true">On each client computer, set the IP address and DNS server before joining the domain. Use the values in the table below:</p>
+
+    <table>
+        <tr>
+            <th contenteditable="true">Computer</th>
+            <th contenteditable="true">IP Address</th>
+            <th contenteditable="true">Subnet Mask</th>
+            <th contenteditable="true">Gateway</th>
+            <th contenteditable="true">DNS Server</th>
+        </tr>
+        <tr>
+            <td contenteditable="true">PC01</td>
+            <td contenteditable="true">172.16.100.21</td>
+            <td contenteditable="true">255.255.255.0</td>
+            <td contenteditable="true">172.16.100.1</td>
+            <td contenteditable="true">172.16.100.10</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">PC02</td>
+            <td contenteditable="true">172.16.100.22</td>
+            <td contenteditable="true">255.255.255.0</td>
+            <td contenteditable="true">172.16.100.1</td>
+            <td contenteditable="true">172.16.100.10</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">PC03</td>
+            <td contenteditable="true">172.16.100.23</td>
+            <td contenteditable="true">255.255.255.0</td>
+            <td contenteditable="true">172.16.100.1</td>
+            <td contenteditable="true">172.16.100.10</td>
+        </tr>
+    </table>
+
+    <p contenteditable="true">To set the static IP on each client:</p>
+    <ol>
+        <li contenteditable="true">Right-click the network icon in the System Tray → Open Network & Internet Settings.</li>
+        <li contenteditable="true">Click Change adapter options.</li>
+        <li contenteditable="true">Right-click the active adapter → Properties.</li>
+        <li contenteditable="true">Select IPv4 → Properties, then enter the values from the table above.</li>
+        <li contenteditable="true">Set Preferred DNS to 172.16.100.10 (the Domain Controller's IP).</li>
+        <li contenteditable="true">Click OK to save, then close all windows.</li>
+        <li contenteditable="true">Test connectivity: Open Command Prompt and type: <code>ping 172.16.100.10</code>. You should receive 4 replies.</li>
+    </ol>
+
+    <h3 contenteditable="true">3.2 Join the Computer to the Domain</h3>
+    <ol>
+        <li contenteditable="true">Right-click the Start button → System.</li>
+        <li contenteditable="true">Scroll down and click Rename this PC (advanced).</li>
+        <li contenteditable="true">In the System Properties window, click Change.</li>
+        <li contenteditable="true">Under Computer name, enter the computer name (PC01, PC02, or PC03 as appropriate).</li>
+        <li contenteditable="true">Under Member of, select Domain and type: acme.local</li>
+        <li contenteditable="true">Click OK.</li>
+        <li contenteditable="true">When prompted for credentials, enter:
+            <ul>
+                <li contenteditable="true">Username: ACME\Administrator</li>
+                <li contenteditable="true">Password: (the Administrator password set during server installation)</li>
+            </ul>
+        </li>
+        <li contenteditable="true">Click OK. You will see a Welcome to the acme.local domain message.</li>
+        <li contenteditable="true">Click OK, then click OK again on the restart prompt.</li>
+        <li contenteditable="true">Restart the computer.</li>
+        <li contenteditable="true">After restart, click Other user and log in with a domain account to verify.</li>
+    </ol>
+
+    <blockquote contenteditable="true">
+        <p><strong>⚠️ Important:</strong><br>
+        Repeat Steps 3.1 and 3.2 on PC02 and PC03 before continuing.<br>
+        All three computers must be joined to the domain before proceeding to Part 4.</p>
+    </blockquote>
+    <hr>
+
+    <h2 contenteditable="true">Part 4 — Creating Domain User Accounts</h2>
+    <p contenteditable="true">In this part, you will create 5 user accounts in Active Directory for ACME Corporation employees. The login format is: first initial of first name + last name (all lowercase).</p>
+
+    <h3 contenteditable="true">4.1 ACME User Account Reference</h3>
+    <table>
+        <tr>
+            <th contenteditable="true">Full Name</th>
+            <th contenteditable="true">Username (Login)</th>
+            <th contenteditable="true">Department</th>
+            <th contenteditable="true">Drive</th>
+            <th contenteditable="true">Email (example)</th>
+        </tr>
+        <tr>
+            <td contenteditable="true">John Smith</td>
+            <td contenteditable="true">jsmith</td>
+            <td contenteditable="true">Sales</td>
+            <td contenteditable="true">S:</td>
+            <td contenteditable="true">jsmith@acme.local</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Maria Gonzalez</td>
+            <td contenteditable="true">mgonzalez</td>
+            <td contenteditable="true">Sales</td>
+            <td contenteditable="true">S:</td>
+            <td contenteditable="true">mgonzalez@acme.local</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Alan Parker</td>
+            <td contenteditable="true">aparker</td>
+            <td contenteditable="true">Marketing</td>
+            <td contenteditable="true">M:</td>
+            <td contenteditable="true">aparker@acme.local</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Diana Lee</td>
+            <td contenteditable="true">dlee</td>
+            <td contenteditable="true">Marketing</td>
+            <td contenteditable="true">M:</td>
+            <td contenteditable="true">dlee@acme.local</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Susan Turner</td>
+            <td contenteditable="true">sturner</td>
+            <td contenteditable="true">HR</td>
+            <td contenteditable="true">H:</td>
+            <td contenteditable="true">sturner@acme.local</td>
+        </tr>
+    </table>
+
+    <h3 contenteditable="true">4.2 Create Users in Active Directory</h3>
+    <p contenteditable="true">Perform these steps on DC01 (the Domain Controller):</p>
+    <ol>
+        <li contenteditable="true">Open Server Manager → Tools → Active Directory Users and Computers.</li>
+        <li contenteditable="true">Expand acme.local in the left panel.</li>
+        <li contenteditable="true">Right-click the Users container → New → User.</li>
+        <li contenteditable="true">For each user in the table above, fill in the New Object — User dialog as follows:
+            <ul>
+                <li contenteditable="true">First name: (as shown in table)</li>
+                <li contenteditable="true">Last name: (as shown in table)</li>
+                <li contenteditable="true">User logon name: (username from table, e.g., jsmith)</li>
+            </ul>
+        </li>
+        <li contenteditable="true">Click Next</li>
+        <li contenteditable="true">Password: Acme@User2024! (or another strong password — same for all users in this lab)</li>
+        <li contenteditable="true">Uncheck 'User must change password at next logon'</li>
+        <li contenteditable="true">Check 'Password never expires' (for lab purposes only)</li>
+        <li contenteditable="true">Click Next → Finish</li>
+    </ol>
+
+    <blockquote contenteditable="true">
+        <p><strong>⚠️ Important:</strong><br>
+        In a real-world environment, you should NOT check 'Password never expires' and you SHOULD require users to change their password at first login.<br>
+        This lab uses simplified settings to focus on the core concepts.</p>
+    </blockquote>
+
+    <h3 contenteditable="true">4.3 Create Organizational Units (Optional but Recommended)</h3>
+    <p contenteditable="true">For better organization, create Organizational Units (OUs) for each department:</p>
+    <ol>
+        <li contenteditable="true">In Active Directory Users and Computers, right-click acme.local → New → Organizational Unit.</li>
+        <li contenteditable="true">Name it Sales. Click OK.</li>
+        <li contenteditable="true">Repeat to create Marketing and HR organizational units.</li>
+        <li contenteditable="true">Move each user to their respective OU: right-click the user → Move → select the appropriate OU.</li>
+    </ol>
+    <hr>
+
+    <h2 contenteditable="true">Part 5 — Configuring the File Server and Department Shares</h2>
+    <p contenteditable="true">DC01 will act as the file server for ACME. You will install the File Server role, create department folders, configure NTFS permissions, and create hidden shared folders (using the $ suffix) that map to drive letters for each department.</p>
+
+    <h3 contenteditable="true">5.1 Install the File and Storage Services Role</h3>
+    <ol>
+        <li contenteditable="true">In Server Manager, click Manage → Add Roles and Features.</li>
+        <li contenteditable="true">Proceed through the wizard until Server Roles. Expand File and Storage Services → File and iSCSI Services.</li>
+        <li contenteditable="true">Check File Server and File Server Resource Manager. Click Add Features if prompted.</li>
+        <li contenteditable="true">Click Next through remaining pages and click Install.</li>
+        <li contenteditable="true">Wait for installation to complete. No restart is required.</li>
+    </ol>
+
+    <h3 contenteditable="true">5.2 Create Department Folders</h3>
+    <p contenteditable="true">You will create the department folders in C:\DeptShares\ on DC01.</p>
+    <ol>
+        <li contenteditable="true">Open File Explorer on DC01.</li>
+        <li contenteditable="true">Navigate to Local Disk (C:).</li>
+        <li contenteditable="true">Create a new folder named DeptShares.</li>
+        <li contenteditable="true">Inside DeptShares, create three sub-folders:
+            <ul>
+                <li contenteditable="true">Sales</li>
+                <li contenteditable="true">Marketing</li>
+                <li contenteditable="true">HR</li>
+            </ul>
+        </li>
+    </ol>
+
+    <blockquote contenteditable="true">
+        <p><strong>📝 Note:</strong><br>
+        Your folder structure should look like this:<br>
+        <code>C:\DeptShares\Sales\</code><br>
+        <code>C:\DeptShares\Marketing\</code><br>
+        <code>C:\DeptShares\HR\</code></p>
+    </blockquote>
+
+    <h3 contenteditable="true">5.3 Create Sub-Folders Inside Each Department Folder</h3>
+    <p contenteditable="true">In each department folder, create 2 sub-folders. Suggested names are provided below (you may use your own naming):</p>
+
+    <table>
+        <tr>
+            <th contenteditable="true">Department Folder</th>
+            <th contenteditable="true">Sub-Folder 1</th>
+            <th contenteditable="true">Sub-Folder 2</th>
+            <th contenteditable="true">Drive Letter</th>
+        </tr>
+        <tr>
+            <td contenteditable="true">C:\DeptShares\Sales</td>
+            <td contenteditable="true">Contracts</td>
+            <td contenteditable="true">Leads</td>
+            <td contenteditable="true">S:</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">C:\DeptShares\Marketing</td>
+            <td contenteditable="true">Campaigns</td>
+            <td contenteditable="true">Assets</td>
+            <td contenteditable="true">M:</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">C:\DeptShares\HR</td>
+            <td contenteditable="true">Onboarding</td>
+            <td contenteditable="true">Payroll</td>
+            <td contenteditable="true">H:</td>
+        </tr>
+    </table>
+
+    <p contenteditable="true">To create sub-folders:</p>
+    <ol>
+        <li contenteditable="true">Open the Sales folder (C:\DeptShares\Sales).</li>
+        <li contenteditable="true">Right-click in an empty area → New → Folder. Name it Contracts.</li>
+        <li contenteditable="true">Repeat to create the Leads folder.</li>
+        <li contenteditable="true">Repeat for Marketing (Campaigns, Assets) and HR (Onboarding, Payroll).</li>
+    </ol>
+
+    <h3 contenteditable="true">5.4 Create Domain Local Security Groups</h3>
+    <p contenteditable="true">Create a security group for each department to manage permissions centrally:</p>
+    <ol>
+        <li contenteditable="true">Open Active Directory Users and Computers.</li>
+        <li contenteditable="true">Right-click the Users container (or the department OU) → New → Group.</li>
+        <li contenteditable="true">For the Sales group:
+            <ul>
+                <li contenteditable="true">Group name: GRP_Sales</li>
+                <li contenteditable="true">Group scope: Domain Local</li>
+                <li contenteditable="true">Group type: Security</li>
+                <li contenteditable="true">Click OK</li>
+            </ul>
+        </li>
+        <li contenteditable="true">Repeat to create GRP_Marketing and GRP_HR.</li>
+        <li contenteditable="true">Add users to their groups:
+            <ul>
+                <li contenteditable="true">Double-click GRP_Sales → Members tab → Add → type jsmith → OK. Repeat for mgonzalez.</li>
+                <li contenteditable="true">Double-click GRP_Marketing → Members tab → Add → aparker, dlee.</li>
+                <li contenteditable="true">Double-click GRP_HR → Members tab → Add → sturner.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3 contenteditable="true">5.5 Configure NTFS Permissions</h3>
+    <p contenteditable="true">Now configure NTFS permissions so that only the appropriate group can access each folder. You will remove broad permissions and apply department-specific access.</p>
+    <p contenteditable="true">Perform the following steps for EACH department folder (Sales, Marketing, HR):</p>
+
+    <p contenteditable="true"><strong>Example: Configuring NTFS Permissions for the Sales Folder</strong></p>
+    <ol>
+        <li contenteditable="true">Right-click C:\DeptShares\Sales → Properties.</li>
+        <li contenteditable="true">Click the Security tab → Advanced.</li>
+        <li contenteditable="true">Click Disable inheritance. When prompted, choose Convert inherited permissions into explicit permissions on this object.</li>
+        <li contenteditable="true">Back in the Advanced Security Settings, remove Users (ACME\Users) from the list (select it → Remove).</li>
+        <li contenteditable="true">Click Add → Select a principal. Type GRP_Sales → OK.</li>
+        <li contenteditable="true">Set Type to Allow. Check Modify, Read & execute, List folder contents, Read, Write.</li>
+        <li contenteditable="true">Click OK → Apply → OK.</li>
+    </ol>
+
+    <p contenteditable="true">Repeat the same steps for Marketing (using GRP_Marketing) and HR (using GRP_HR).</p>
+
+    <blockquote contenteditable="true">
+        <p><strong>⚠️ Important:</strong><br>
+        Make sure to also set the same Modify permissions on the two sub-folders within each department folder.<br>
+        Verify that SYSTEM and Administrators still have Full Control — do not remove those entries.<br>
+        The goal is: Sales users can only access Sales; Marketing users only Marketing; HR only HR.</p>
+    </blockquote>
+
+    <h3 contenteditable="true">5.6 Create and Share the Department Folders</h3>
+    <p contenteditable="true">Create hidden shares (using $ suffix) so only mapped drive users can connect directly:</p>
+    <p contenteditable="true">For each department folder, do the following (example for Sales):</p>
+    <ol>
+        <li contenteditable="true">Right-click C:\DeptShares\Sales → Properties → Sharing tab → Advanced Sharing.</li>
+        <li contenteditable="true">Check Share this folder.</li>
+        <li contenteditable="true">Enter the share name: Sales$ (the $ makes it hidden).</li>
+        <li contenteditable="true">Click Permissions. Remove Everyone. Add GRP_Sales with Change permission (which grants read and write). Click OK.</li>
+        <li contenteditable="true">Click OK → Close.</li>
+    </ol>
+
+    <table>
+        <tr>
+            <th contenteditable="true">Folder Path</th>
+            <th contenteditable="true">Share Name</th>
+            <th contenteditable="true">Share Permission</th>
+            <th contenteditable="true">UNC Path</th>
+        </tr>
+        <tr>
+            <td contenteditable="true">C:\DeptShares\Sales</td>
+            <td contenteditable="true">Sales$</td>
+            <td contenteditable="true">GRP_Sales — Change</td>
+            <td contenteditable="true">\\DC01\Sales$</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">C:\DeptShares\Marketing</td>
+            <td contenteditable="true">Marketing$</td>
+            <td contenteditable="true">GRP_Marketing — Change</td>
+            <td contenteditable="true">\\DC01\Marketing$</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">C:\DeptShares\HR</td>
+            <td contenteditable="true">HR$</td>
+            <td contenteditable="true">GRP_HR — Change</td>
+            <td contenteditable="true">\\DC01\HR$</td>
+        </tr>
+    </table>
+    <hr>
+
+    <h2 contenteditable="true">Part 6 — Mapping Department Drive Letters via Group Policy</h2>
+    <p contenteditable="true">In this final configuration step, you will use Group Policy to automatically map the correct drive letter for each user when they log in to any domain computer. This ensures Sales users see S:, Marketing users see M:, and HR users see H: automatically.</p>
+
+    <h3 contenteditable="true">6.1 Open Group Policy Management</h3>
+    <ol>
+        <li contenteditable="true">On DC01, open Server Manager → Tools → Group Policy Management.</li>
+        <li contenteditable="true">Expand Forest: acme.local → Domains → acme.local.</li>
+        <li contenteditable="true">Right-click Group Policy Objects → New.</li>
+        <li contenteditable="true">Name the GPO: Drive Mappings — ACME. Click OK.</li>
+        <li contenteditable="true">Right-click the new GPO → Edit. The Group Policy Management Editor will open.</li>
+    </ol>
+
+    <h3 contenteditable="true">6.2 Create Drive Mappings for Each Department</h3>
+    <p contenteditable="true">In the Group Policy Management Editor, navigate to:<br>
+    <code>User Configuration → Preferences → Windows Settings → Drive Maps</code></p>
+    <p contenteditable="true">Right-click Drive Maps → New → Mapped Drive.</p>
+    <p contenteditable="true">Configure the Sales drive mapping:</p>
+    <ul>
+        <li contenteditable="true">Action: Create</li>
+        <li contenteditable="true">Location: \\DC01\Sales$</li>
+        <li contenteditable="true">Label as: Sales Drive</li>
+        <li contenteditable="true">Drive Letter: S</li>
+        <li contenteditable="true">Click the Common tab → check 'Item-level targeting' → Targeting → New Item → Security Group → select GRP_Sales</li>
+        <li contenteditable="true">Click OK</li>
+    </ul>
+
+    <p contenteditable="true">Repeat for Marketing and HR:</p>
+    <table>
+        <tr>
+            <th contenteditable="true">Department</th>
+            <th contenteditable="true">UNC Path</th>
+            <th contenteditable="true">Drive Letter</th>
+            <th contenteditable="true">Label</th>
+            <th contenteditable="true">Target Group</th>
+        </tr>
+        <tr>
+            <td contenteditable="true">Sales</td>
+            <td contenteditable="true">\\DC01\Sales$</td>
+            <td contenteditable="true">S:</td>
+            <td contenteditable="true">Sales Drive</td>
+            <td contenteditable="true">GRP_Sales</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Marketing</td>
+            <td contenteditable="true">\\DC01\Marketing$</td>
+            <td contenteditable="true">M:</td>
+            <td contenteditable="true">Marketing Drive</td>
+            <td contenteditable="true">GRP_Marketing</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">HR</td>
+            <td contenteditable="true">\\DC01\HR$</td>
+            <td contenteditable="true">H:</td>
+            <td contenteditable="true">HR Drive</td>
+            <td contenteditable="true">GRP_HR</td>
+        </tr>
+    </table>
+
+    <h3 contenteditable="true">6.3 Link the GPO to the Domain</h3>
+    <ol>
+        <li contenteditable="true">In Group Policy Management, right-click acme.local → Link an Existing GPO.</li>
+        <li contenteditable="true">Select Drive Mappings — ACME → OK.</li>
+        <li contenteditable="true">To force Group Policy to apply immediately (instead of waiting up to 90 minutes), on DC01 open Command Prompt and type: <code>gpupdate /force</code></li>
+        <li contenteditable="true">Log off and log back on from a client computer as one of the domain users to verify the drive letter appears.</li>
+    </ol>
+    <hr>
+
+    <h2 contenteditable="true">Part 7 — Verification and Testing</h2>
+    <p contenteditable="true">Use the following tests to confirm your lab is properly configured. Perform all tests from client computers (PC01, PC02, or PC03).</p>
+
+    <h3 contenteditable="true">7.1 Test User Login and Drive Mapping</h3>
+    <table>
+        <tr>
+            <th contenteditable="true">Login As</th>
+            <th contenteditable="true">Expected Drive</th>
+            <th contenteditable="true">Verify</th>
+            <th contenteditable="true">Expected Result</th>
+        </tr>
+        <tr>
+            <td contenteditable="true">jsmith</td>
+            <td contenteditable="true">S: Sales Drive</td>
+            <td contenteditable="true">Open File Explorer → S: drive</td>
+            <td contenteditable="true">Can access Sales folder and sub-folders</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">mgonzalez</td>
+            <td contenteditable="true">S: Sales Drive</td>
+            <td contenteditable="true">Try to open \\DC01\Marketing$</td>
+            <td contenteditable="true">Access Denied</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">aparker</td>
+            <td contenteditable="true">M: Marketing Drive</td>
+            <td contenteditable="true">Open File Explorer → M: drive</td>
+            <td contenteditable="true">Can access Marketing folder and sub-folders</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">dlee</td>
+            <td contenteditable="true">M: Marketing Drive</td>
+            <td contenteditable="true">Try to open \\DC01\Sales$</td>
+            <td contenteditable="true">Access Denied</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">sturner</td>
+            <td contenteditable="true">H: HR Drive</td>
+            <td contenteditable="true">Open File Explorer → H: drive</td>
+            <td contenteditable="true">Can access HR folder and sub-folders</td>
+        </tr>
+    </table>
+
+    <h3 contenteditable="true">7.2 Verify Sub-Folder Modify Permissions</h3>
+    <ol>
+        <li contenteditable="true">Log in as jsmith on PC01.</li>
+        <li contenteditable="true">Open File Explorer → S: drive → Contracts folder.</li>
+        <li contenteditable="true">Right-click in an empty area → New → Text Document. Name it TestFile.txt.</li>
+        <li contenteditable="true">If you can create the file successfully, Modify permissions are working correctly.</li>
+        <li contenteditable="true">Delete the test file when done.</li>
+        <li contenteditable="true">Repeat for the Leads folder.</li>
+        <li contenteditable="true">Repeat this test for aparker (Marketing sub-folders) and sturner (HR sub-folders).</li>
+    </ol>
+
+    <h3 contenteditable="true">7.3 Verify Cross-Department Access is Blocked</h3>
+    <ol>
+        <li contenteditable="true">Log in as jsmith.</li>
+        <li contenteditable="true">Open Run (Win+R) and type: <code>\\DC01\Marketing$</code></li>
+        <li contenteditable="true">You should receive a 'You do not have permission to access this resource' error.</li>
+        <li contenteditable="true">Also test <code>\\DC01\HR$</code> — also should be denied.</li>
+        <li contenteditable="true">Repeat for each user, confirming they cannot access other departments' shares.</li>
+    </ol>
+    <hr>
+
+    <h2 contenteditable="true">Part 8 — Lab Summary and Deliverables</h2>
+
+    <h3 contenteditable="true">8.1 Summary of What You Built</h3>
+    <p contenteditable="true">Congratulations! You have successfully built a functional Windows Server 2019 Essentials environment for ACME Corporation. Here is a summary of everything you configured:</p>
+    <table>
+        <tr>
+            <th contenteditable="true">Component</th>
+            <th contenteditable="true">Details</th>
+        </tr>
+        <tr>
+            <td contenteditable="true">Operating System</td>
+            <td contenteditable="true">Windows Server 2019 Essentials — Dell computer</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Domain</td>
+            <td contenteditable="true">acme.local — IP range 172.16.100.x</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Domain Controller</td>
+            <td contenteditable="true">DC01 — 172.16.100.10</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Client Computers</td>
+            <td contenteditable="true">PC01, PC02, PC03 — all joined to acme.local</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Domain Users Created</td>
+            <td contenteditable="true">jsmith, mgonzalez, aparker, dlee, sturner</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Security Groups</td>
+            <td contenteditable="true">GRP_Sales, GRP_Marketing, GRP_HR</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">File Server Shares</td>
+            <td contenteditable="true">Sales$ → S:, Marketing$ → M:, HR$ → H:</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">NTFS Permissions</td>
+            <td contenteditable="true">Each group has Modify on their own folder only</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Sub-Folders</td>
+            <td contenteditable="true">2 per department — all with Modify permission for department group</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Drive Mapping Method</td>
+            <td contenteditable="true">Group Policy Preferences with Item-Level Targeting</td>
+        </tr>
+    </table>
+
+    <h3 contenteditable="true">8.2 Lab Deliverables</h3>
+    <p contenteditable="true">Submit the following screenshots or documentation to your instructor:</p>
+    <ul>
+        <li contenteditable="true">Screenshot of Active Directory Users and Computers showing all 5 users</li>
+        <li contenteditable="true">Screenshot of the three Security Groups (GRP_Sales, GRP_Marketing, GRP_HR) with their members</li>
+        <li contenteditable="true">Screenshot of the DeptShares folder structure showing all department folders and sub-folders</li>
+        <li contenteditable="true">Screenshot of the Advanced Security Settings for each department folder showing correct group permissions</li>
+        <li contenteditable="true">Screenshot of the Group Policy Drive Maps preferences</li>
+        <li contenteditable="true">Screenshot of File Explorer logged in as jsmith showing S: drive mapped</li>
+        <li contenteditable="true">Screenshot of File Explorer logged in as aparker showing M: drive mapped</li>
+        <li contenteditable="true">Screenshot of File Explorer logged in as sturner showing H: drive mapped</li>
+        <li contenteditable="true">Screenshot of an Access Denied error when a user attempts to open another department's share</li>
+    </ul>
+
+    <h3 contenteditable="true">8.3 Reflection Questions</h3>
+    <p contenteditable="true">Answer the following questions in your lab report:</p>
+    <ol>
+        <li contenteditable="true">What is the purpose of a Domain Controller in a Windows network environment?</li>
+        <li contenteditable="true">Explain the difference between Share permissions and NTFS permissions. Which takes precedence when both are applied?</li>
+        <li contenteditable="true">Why did we use a $ at the end of the share names (Sales$, Marketing$, HR$)?</li>
+        <li contenteditable="true">What is Item-Level Targeting in Group Policy Preferences, and why did we use it for drive mappings?</li>
+        <li contenteditable="true">What would happen if you forgot to disable inheritance when setting NTFS permissions on the department folders?</li>
+    </ol>
+    <hr>
+
+    <h2 contenteditable="true">Appendix — Quick Reference</h2>
+
+    <h3 contenteditable="true">A.1 All User Accounts at a Glance</h3>
+    <table>
+        <tr>
+            <th contenteditable="true">Full Name</th>
+            <th contenteditable="true">Username</th>
+            <th contenteditable="true">Department</th>
+            <th contenteditable="true">Drive</th>
+            <th contenteditable="true">UNC Share</th>
+        </tr>
+        <tr>
+            <td contenteditable="true">John Smith</td>
+            <td contenteditable="true">jsmith</td>
+            <td contenteditable="true">Sales</td>
+            <td contenteditable="true">S:</td>
+            <td contenteditable="true">\\DC01\Sales$</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Maria Gonzalez</td>
+            <td contenteditable="true">mgonzalez</td>
+            <td contenteditable="true">Sales</td>
+            <td contenteditable="true">S:</td>
+            <td contenteditable="true">\\DC01\Sales$</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Alan Parker</td>
+            <td contenteditable="true">aparker</td>
+            <td contenteditable="true">Marketing</td>
+            <td contenteditable="true">M:</td>
+            <td contenteditable="true">\\DC01\Marketing$</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Diana Lee</td>
+            <td contenteditable="true">dlee</td>
+            <td contenteditable="true">Marketing</td>
+            <td contenteditable="true">M:</td>
+            <td contenteditable="true">\\DC01\Marketing$</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">Susan Turner</td>
+            <td contenteditable="true">sturner</td>
+            <td contenteditable="true">HR</td>
+            <td contenteditable="true">H:</td>
+            <td contenteditable="true">\\DC01\HR$</td>
+        </tr>
+    </table>
+
+    <h3 contenteditable="true">A.2 Key IP Addresses</h3>
+    <table>
+        <tr>
+            <th contenteditable="true">Computer</th>
+            <th contenteditable="true">IP Address</th>
+            <th contenteditable="true">Role</th>
+        </tr>
+        <tr>
+            <td contenteditable="true">DC01 (Dell Server)</td>
+            <td contenteditable="true">172.16.100.10</td>
+            <td contenteditable="true">DC + File Server</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">PC01</td>
+            <td contenteditable="true">172.16.100.21</td>
+            <td contenteditable="true">Workstation</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">PC02</td>
+            <td contenteditable="true">172.16.100.22</td>
+            <td contenteditable="true">Workstation</td>
+        </tr>
+        <tr>
+            <td contenteditable="true">PC03</td>
+            <td contenteditable="true">172.16.100.23</td>
+            <td contenteditable="true">Workstation</td>
+        </tr>
+    </table>
+
+    <h3 contenteditable="true">A.3 Useful Commands</h3>
+    <table>
+        <tr>
+            <th contenteditable="true">Command</th>
+            <th contenteditable="true">Purpose</th>
+        </tr>
+        <tr>
+            <td contenteditable="true"><code>gpupdate /force</code></td>
+            <td contenteditable="true">Force Group Policy to refresh immediately</td>
+        </tr>
+        <tr>
+            <td contenteditable="true"><code>gpresult /r</code></td>
+            <td contenteditable="true">Show applied Group Policies for current user</td>
+        </tr>
+        <tr>
+            <td contenteditable="true"><code>net use</code></td>
+            <td contenteditable="true">Show current mapped drives</td>
+        </tr>
+        <tr>
+            <td contenteditable="true"><code>nslookup acme.local</code></td>
+            <td contenteditable="true">Verify DNS resolves the domain</td>
+        </tr>
+        <tr>
+            <td contenteditable="true"><code>ping 172.16.100.10</code></td>
+            <td contenteditable="true">Test connectivity to Domain Controller</td>
+        </tr>
+        <tr>
+            <td contenteditable="true"><code>dcdiag</code></td>
+            <td contenteditable="true">Diagnose Domain Controller health</td>
+        </tr>
+        <tr>
+            <td contenteditable="true"><code>nltest /dsgetdc:acme.local</code></td>
+            <td contenteditable="true">Verify client can find a Domain Controller</td>
+        </tr>
+    </table>
+    <hr>
+
+    <p style="text-align: center;" contenteditable="true">— End of Lab —<br>
+    ACME Corporation • Information Technology Department • acme.local</p>
+
+</body>
+</html>
